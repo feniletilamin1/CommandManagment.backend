@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CommandManagment.backend.Data
 {
-    public class AppDbContext: DbContext
+    public class AppDbContext : DbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
         public DbSet<User> Users { get; set; }
@@ -22,17 +22,10 @@ namespace CommandManagment.backend.Data
                 entity.HasIndex(x => x.Email).IsUnique();
             });
 
-            modelBuilder.Entity<ScrumBoard>()
-                .HasOne(sb => sb.User)
-                .WithMany(u => u.ScrumBoards)
-                .HasForeignKey(sb => sb.UserId)
-                .OnDelete(DeleteBehavior.NoAction);
-
             modelBuilder.Entity<ScrumBoardTask>()
-                   .HasOne(sb => sb.ScrumBoardColumn)
-                   .WithMany(u => u.ScrumBoardTasks)
-                   .HasForeignKey(sb => sb.ScrumBoardColumnId)
-                   .OnDelete(DeleteBehavior.NoAction);
+            .HasOne(u => u.ScrumBoardColumn)
+            .WithMany(c => c.ScrumBoardTasks)
+            .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

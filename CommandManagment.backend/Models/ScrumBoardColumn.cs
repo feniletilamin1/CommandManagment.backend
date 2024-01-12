@@ -11,7 +11,7 @@ namespace CommandManagment.backend.Models
         [JsonIgnore]
         public ScrumBoard? ScrumBoard { get; set; }
         [JsonIgnore]
-        public List<ScrumBoardTask> ScrumBoardTasks { get; set; }
+        public List<ScrumBoardTask>? ScrumBoardTasks { get; set; }
 
         public ScrumBoardColumn()
         {

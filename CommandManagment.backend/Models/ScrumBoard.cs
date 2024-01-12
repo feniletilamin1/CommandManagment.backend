@@ -8,7 +8,7 @@ namespace CommandManagment.backend.Models
         public int Id { get; set; }
         [ForeignKey(nameof(User))]
         [JsonIgnore]
-        public int UserId { get; set; }
+        public int? UserId { get; set; }
         [JsonIgnore]
         public User? User { get; set; }
         [JsonIgnore]

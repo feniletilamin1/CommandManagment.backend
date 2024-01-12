@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace CommandManagment.backend.Migrations
 {
     /// <inheritdoc />
-    public partial class addscrumboard : Migration
+    public partial class addScrumBoard : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -17,7 +17,7 @@ namespace CommandManagment.backend.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: true),
                     ProjectId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -63,8 +63,8 @@ namespace CommandManagment.backend.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Order = table.Column<int>(type: "int", nullable: false),
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ScrumBoardId = table.Column<int>(type: "int", nullable: false),
-                    ScrumBoardColumnId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    ScrumBoardId = table.Column<int>(type: "int", nullable: true),
+                    ScrumBoardColumnId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -73,13 +73,13 @@ namespace CommandManagment.backend.Migrations
                         name: "FK_ScrumBoardTasks_ScrumBoardColumns_ScrumBoardColumnId",
                         column: x => x.ScrumBoardColumnId,
                         principalTable: "ScrumBoardColumns",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_ScrumBoardTasks_ScrumBoards_ScrumBoardId",
                         column: x => x.ScrumBoardId,
                         principalTable: "ScrumBoards",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(

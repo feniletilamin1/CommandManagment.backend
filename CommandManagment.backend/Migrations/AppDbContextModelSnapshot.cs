@@ -77,7 +77,7 @@ namespace CommandManagment.backend.Migrations
                     b.Property<int>("ProjectId")
                         .HasColumnType("int");
 
-                    b.Property<int>("UserId")
+                    b.Property<int?>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -91,7 +91,7 @@ namespace CommandManagment.backend.Migrations
 
             modelBuilder.Entity("CommandManagment.backend.Models.ScrumBoardColumn", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid?>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -114,7 +114,7 @@ namespace CommandManagment.backend.Migrations
 
             modelBuilder.Entity("CommandManagment.backend.Models.ScrumBoardTask", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid?>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -125,10 +125,10 @@ namespace CommandManagment.backend.Migrations
                     b.Property<int>("Order")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("ScrumBoardColumnId")
+                    b.Property<Guid?>("ScrumBoardColumnId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("ScrumBoardId")
+                    b.Property<int?>("ScrumBoardId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -251,9 +251,7 @@ namespace CommandManagment.backend.Migrations
 
                     b.HasOne("CommandManagment.backend.Models.User", "User")
                         .WithMany("ScrumBoards")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
                     b.Navigation("Project");
 
@@ -276,14 +274,11 @@ namespace CommandManagment.backend.Migrations
                     b.HasOne("CommandManagment.backend.Models.ScrumBoardColumn", "ScrumBoardColumn")
                         .WithMany("ScrumBoardTasks")
                         .HasForeignKey("ScrumBoardColumnId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("CommandManagment.backend.Models.ScrumBoard", "ScrumBoard")
                         .WithMany("ScrumBoardTasks")
-                        .HasForeignKey("ScrumBoardId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ScrumBoardId");
 
                     b.Navigation("ScrumBoard");
 

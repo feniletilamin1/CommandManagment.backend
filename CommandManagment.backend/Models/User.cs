@@ -15,9 +15,9 @@ namespace CommandManagment.backend.Models
         [JsonIgnore]
         public string Password { get; set; }
         [JsonIgnore]
-        public List<Team> Teams { get; set; }
+        public List<Team>? Teams { get; set; }
         [JsonIgnore]
-        public List<ScrumBoard> ScrumBoards { get; set; }
+        public List<ScrumBoard>? ScrumBoards { get; set; }
 
         public User()
         {

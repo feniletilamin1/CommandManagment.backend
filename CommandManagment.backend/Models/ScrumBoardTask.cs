@@ -8,10 +8,10 @@ namespace CommandManagment.backend.Models
         public Guid? Id { get; set; }
         public int Order { get; set; }
         public string Content { get; set; }
-        public int ScrumBoardId { get; set; }
+        public int? ScrumBoardId { get; set; }
         [JsonIgnore]
         public ScrumBoard? ScrumBoard { get; set; }
-        public Guid ScrumBoardColumnId { get; set; }
+        public Guid? ScrumBoardColumnId { get; set; }
         [JsonIgnore]
         public ScrumBoardColumn? ScrumBoardColumn { get; set; }
     }

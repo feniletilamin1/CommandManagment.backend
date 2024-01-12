@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;
-using static System.Net.WebRequestMethods;
 
 namespace CommandManagment.backend.Controllers
 {
@@ -169,7 +168,7 @@ namespace CommandManagment.backend.Controllers
             return Ok(new ResponseModel("Success"));
         }
 
-
+        [Authorize]
         [HttpGet("GetInviteLink/{teamId}")]
         public async Task<IActionResult> GetInviteLink(int teamId)
         {
@@ -200,15 +199,18 @@ namespace CommandManagment.backend.Controllers
             return Ok(token);
         }
 
+        [Authorize]
         [HttpPost("InviteUserToTeam")]
-        public async Task<IActionResult> InviteUserToTeam([FromBody] InviteUserDto inviteUserDto)
+        public async Task<IActionResult> InviteUserToTeam(string token)
         {
             JwtSecurityTokenHandler tokenHandler = new();
-            JwtSecurityToken validateToken = _jwtService.ValidateToken(inviteUserDto.Token);
+            JwtSecurityToken validateToken = _jwtService.ValidateToken(token);
 
             if (validateToken == null) return BadRequest("Wrong token or expires");
 
-            User user = await _contextHelper.GetUserByEmail(inviteUserDto.userEmail);
+
+            string userEmail = _jwtService.GetUserEmailFromJwt(Request.Headers["Authorization"]);
+            User user = await _contextHelper.GetUserByEmail(userEmail);
 
             if (user == null)
                 return BadRequest(new ResponseModel("Wrong user email"));
