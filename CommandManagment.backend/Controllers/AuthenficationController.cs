@@ -5,7 +5,8 @@ using CommandManagment.backend.Models;
 using CommandManagment.backend.ResponseModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.EntityFrameworkCore;
+using System.IO;
 
 namespace CommandManagment.backend.Controllers
 {
@@ -92,9 +93,10 @@ namespace CommandManagment.backend.Controllers
         [HttpPut("ProfileUpdate")] 
         public async Task<IActionResult> ProfileUpdate([FromForm] UpdateProfileDto dto)
         {
-            User user = await _contextHelper.GetUserById(dto.Id);
+            string userEmail = _jwtService.GetUserEmailFromJwt(Request.Headers["Authorization"]);
+            User user = await _contextHelper.GetUserByEmail(userEmail);
 
-            if(user == null) return BadRequest(new ResponseModel("Wrong user id"));
+            if (user == null) return BadRequest(new ResponseModel("Wrong user"));
             user.LastName = dto.LastName;
             user.FirstName = dto.FirstName;
             user.MiddleName = dto.MiddleName;
@@ -118,6 +120,25 @@ namespace CommandManagment.backend.Controllers
             user.Photo = "https://" + HttpContext.Request.Host + user.Photo;
 
             return Ok(new { user });
+        }
+
+        [Authorize]
+        [HttpPut("PasswordChange")]
+        public async Task<IActionResult> PasswordChange([FromBody] PasswordChangeDto dto)
+        {
+            string userEmail = _jwtService.GetUserEmailFromJwt(Request.Headers["Authorization"]);
+            User user = await _contextHelper.GetUserByEmail(userEmail);
+
+            if (user == null) return BadRequest(new ResponseModel("Wrong user"));
+
+            if (!BCrypt.Net.BCrypt.Verify(dto.oldPassword, user.Password)) return BadRequest(new ResponseModel("Неверный текущий пароль"));
+
+            user.Password = BCrypt.Net.BCrypt.HashPassword(dto.newPassword);
+
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+
+            return Ok();
         }
     }
 }
