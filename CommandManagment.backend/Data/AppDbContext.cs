@@ -10,7 +10,6 @@ namespace CommandManagment.backend.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Project> Projects { get; set; }
         public DbSet<Team> Teams { get; set; }
-        public DbSet<InviteTeamToken> Invites { get; set; }
         public DbSet<ScrumBoard> ScrumBoards { get; set; }
         public DbSet<ScrumBoardColumn> ScrumBoardColumns { get; set; }
         public DbSet<ScrumBoardTask> ScrumBoardTasks { get; set; }
@@ -23,9 +22,14 @@ namespace CommandManagment.backend.Data
             });
 
             modelBuilder.Entity<ScrumBoardTask>()
-            .HasOne(u => u.ScrumBoardColumn)
-            .WithMany(c => c.ScrumBoardTasks)
-            .OnDelete(DeleteBehavior.Cascade);
+                .HasOne(u => u.ScrumBoardColumn)
+                .WithMany(c => c.ScrumBoardTasks)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ScrumBoardTask>()
+              .HasOne(u => u.ResponsibleUser)
+              .WithMany(c => c.UserTasks)
+              .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

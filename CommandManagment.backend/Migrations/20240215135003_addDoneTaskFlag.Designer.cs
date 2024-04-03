@@ -4,6 +4,7 @@ using CommandManagment.backend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CommandManagment.backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240215135003_addDoneTaskFlag")]
+    partial class addDoneTaskFlag
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -111,9 +114,6 @@ namespace CommandManagment.backend.Migrations
                     b.Property<int>("Order")
                         .HasColumnType("int");
 
-                    b.Property<int>("ResponsibleUserId")
-                        .HasColumnType("int");
-
                     b.Property<Guid?>("ScrumBoardColumnId")
                         .HasColumnType("uniqueidentifier");
 
@@ -121,8 +121,6 @@ namespace CommandManagment.backend.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ResponsibleUserId");
 
                     b.HasIndex("ScrumBoardColumnId");
 
@@ -262,12 +260,6 @@ namespace CommandManagment.backend.Migrations
 
             modelBuilder.Entity("CommandManagment.backend.Models.ScrumBoardTask", b =>
                 {
-                    b.HasOne("CommandManagment.backend.Models.User", "ResponsibleUser")
-                        .WithMany("UserTasks")
-                        .HasForeignKey("ResponsibleUserId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
                     b.HasOne("CommandManagment.backend.Models.ScrumBoardColumn", "ScrumBoardColumn")
                         .WithMany("ScrumBoardTasks")
                         .HasForeignKey("ScrumBoardColumnId")
@@ -276,8 +268,6 @@ namespace CommandManagment.backend.Migrations
                     b.HasOne("CommandManagment.backend.Models.ScrumBoard", "ScrumBoard")
                         .WithMany("ScrumBoardTasks")
                         .HasForeignKey("ScrumBoardId");
-
-                    b.Navigation("ResponsibleUser");
 
                     b.Navigation("ScrumBoard");
 
@@ -314,8 +304,6 @@ namespace CommandManagment.backend.Migrations
             modelBuilder.Entity("CommandManagment.backend.Models.User", b =>
                 {
                     b.Navigation("ScrumBoards");
-
-                    b.Navigation("UserTasks");
                 });
 #pragma warning restore 612, 618
         }

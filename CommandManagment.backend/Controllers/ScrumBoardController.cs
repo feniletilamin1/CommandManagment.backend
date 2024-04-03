@@ -30,7 +30,7 @@ namespace CommandManagment.backend.Controllers
         {
             string userEmail = _jwtService.GetUserEmailFromJwt(Request.Headers["Authorization"]);
             User user = await _contextHelper.GetUserByEmail(userEmail);
-            Project project = await _context.Projects.FirstOrDefaultAsync(p => p.Id == projectId);
+            Project project = await _context.Projects.Include(p => p.Team).FirstOrDefaultAsync(p => p.Id == projectId);
 
             if (user == null || project == null)
                 return BadRequest(new ResponseModel("Wrong user email or projectId"));
@@ -39,6 +39,7 @@ namespace CommandManagment.backend.Controllers
             
             scrumBoard.ScrumBoardColumns = scrumBoard.ScrumBoardColumns.OrderBy(o => o.Order).ToList();
             scrumBoard.ScrumBoardTasks = scrumBoard.ScrumBoardTasks.OrderBy(o => o.Order).ToList();
+            scrumBoard.TeamUsers = await _context.Users.Where(u => u.Teams.Contains(project.Team)).ToListAsync();
 
             return Ok(scrumBoard);
         }
@@ -128,6 +129,7 @@ namespace CommandManagment.backend.Controllers
 
             if (user == null)
                 return BadRequest(new ResponseModel("Wrong user email"));
+            scrumBoardTask.ResponsibleUser = await _contextHelper.GetUserById(scrumBoardTask.ResponsibleUserId);
 
             ScrumBoard scrumBoard = await _context.ScrumBoards.Include(p => p.ScrumBoardTasks).FirstOrDefaultAsync(p => p.Id == scrumBoardTask.ScrumBoardId);
 

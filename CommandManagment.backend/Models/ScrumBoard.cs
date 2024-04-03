@@ -17,11 +17,13 @@ namespace CommandManagment.backend.Models
         public Project? Project { get; set; }
         public List<ScrumBoardColumn> ScrumBoardColumns { get; set; }
         public List<ScrumBoardTask> ScrumBoardTasks { get; set; }
-
+        [NotMapped]
+        public List<User> TeamUsers { get; set; }
         public ScrumBoard()
         {
             ScrumBoardTasks = new List<ScrumBoardTask>();
             ScrumBoardColumns = new List<ScrumBoardColumn>();
+            TeamUsers = new List<User>();
         }
     }
 }

@@ -110,7 +110,7 @@ namespace CommandManagment.backend.Controllers
             return Ok(team);
         }
 
-
+        [Authorize]
         [HttpPost("AddUserToTeam")]
         public async Task<IActionResult> AddUserToTeam([FromBody] AddUserTeamDto addUserTeamDto)
         {
@@ -188,19 +188,13 @@ namespace CommandManagment.backend.Controllers
 
             string token = _jwtService.GenerateInviteToken(teamId);
 
-            _context.Invites.Add(new InviteTeamToken
-            {
-                Id = 0,
-                Token = token,
-            });
-
             await _context.SaveChangesAsync();
 
             return Ok(token);
         }
 
         [Authorize]
-        [HttpPost("InviteUserToTeam")]
+        [HttpGet("InviteUserToTeam/{token}")]
         public async Task<IActionResult> InviteUserToTeam(string token)
         {
             JwtSecurityTokenHandler tokenHandler = new();
@@ -229,7 +223,6 @@ namespace CommandManagment.backend.Controllers
 
             _context.Teams.Update(team);
 
-            await _context.Invites.Where(p => p.Token == tokenHandler.WriteToken(validateToken)).ExecuteDeleteAsync();
             await _context.SaveChangesAsync();
 
             return Ok(new ResponseModel("Success"));

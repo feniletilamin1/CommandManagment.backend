@@ -68,7 +68,6 @@ namespace CommandManagment.backend.Helpers
             }
             catch (SecurityTokenException)
             {
-                _context.Invites.Where(p => p.Token == tokenHandler.WriteToken(jwtToken)).ExecuteDelete();
                 return null;
             }
         }
