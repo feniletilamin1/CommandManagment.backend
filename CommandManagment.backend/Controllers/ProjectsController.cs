@@ -38,7 +38,10 @@ namespace CommandManagment.backend.Controllers
             if (user == null)
                 return BadRequest(new ResponseModel("Wrong user email"));
 
-            List<Project> projects = await _context.Projects.Where(p => p.CreateUserId == user.Id).Include(o => o.Team).Include(o => o.CreateUser).ToListAsync();
+            List<Project> projects = await _context.Projects.Include(o => o.Team)
+                .Include(o => o.CreateUser)
+                .Where(p => p.Team.Users.Contains(user))
+                .ToListAsync();
 
             return Ok(projects);
         }

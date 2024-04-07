@@ -183,6 +183,8 @@ namespace CommandManagment.backend.Controllers
         [HttpPut("TaskUpdate")]
         public async Task<IActionResult> TaskUpdate([FromBody] ScrumBoardTask scrumBoardTask)
         {
+            scrumBoardTask.ResponsibleUser = null;
+
             string userEmail = _jwtService.GetUserEmailFromJwt(Request.Headers["Authorization"]);
             User user = await _contextHelper.GetUserByEmail(userEmail);
 
