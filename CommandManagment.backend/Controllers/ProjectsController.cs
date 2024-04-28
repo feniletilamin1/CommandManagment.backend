@@ -104,5 +104,28 @@ namespace CommandManagment.backend.Controllers
 
             return Ok(project);
         }
+
+
+        [Authorize]
+        [HttpDelete("DeleteProject/{projectId}")]
+        public async Task<IActionResult> DeleteProject(int projectId)
+        {
+            string userEmail = _jwtService.GetUserEmailFromJwt(Request.Headers["Authorization"]);
+
+            User user = await _contextHelper.GetUserByEmail(userEmail);
+
+            if (user == null)
+                return BadRequest(new ResponseModel("Wrong user email"));
+
+            Project project = await _context.Projects.FirstOrDefaultAsync(i => i.Id == projectId);
+
+            if(project == null)
+                return BadRequest(new ResponseModel("Wrong project id"));
+
+            _context.Projects.Remove(project);
+            await _context.SaveChangesAsync();
+
+            return Ok(project);
+        }
     }
 }

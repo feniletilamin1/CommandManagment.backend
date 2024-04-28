@@ -18,5 +18,8 @@ namespace CommandManagment.backend.Models
         [ForeignKey(nameof(User))]
         public int ResponsibleUserId { get; set; }
         public User? ResponsibleUser { get; set; }
+        public DateTimeOffset DateTimeCreated { get; set; }
+        public int PriorityIndex { get; set; }
+        public DateTimeOffset DateTimeEnd { get; set; }
     }
 }
