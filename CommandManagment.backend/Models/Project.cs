@@ -14,5 +14,9 @@ namespace CommandManagment.backend.Models
         public string Name { get; set; }
         public int TeamId { get; set; }
         public Team? Team { get; set; }
+        [ForeignKey(nameof(Models.Board))]
+        [JsonIgnore]
+        public int BoardId { get; set; }
+        public Board? Board { get; set; }
     }
 }

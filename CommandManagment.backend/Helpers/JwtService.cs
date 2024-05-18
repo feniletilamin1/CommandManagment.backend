@@ -1,5 +1,6 @@
 ﻿using Azure.Core;
 using CommandManagment.backend.Data;
+using CommandManagment.backend.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -29,6 +30,22 @@ namespace CommandManagment.backend.Helpers
             JwtSecurityToken token = GenerateJwtSecureToken(claims, DateTime.UtcNow.Add(TimeSpan.FromHours(5)));
 
             string tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+            return tokenString;
+        }
+
+        public string GenerateResetPasswordToken(string userEmail) {
+            List<Claim> claims = new() { new Claim("userEmail", userEmail) };
+            JwtSecurityToken token = GenerateJwtSecureToken(claims, DateTime.UtcNow.Add(TimeSpan.FromHours(5)));
+
+            string tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+            _context.ResetPasswordTokens.Add(new ResetPasswordToken
+            {
+                Email = userEmail,
+                Token = tokenString
+            });
+
+            _context.SaveChanges();
+
             return tokenString;
         }
 

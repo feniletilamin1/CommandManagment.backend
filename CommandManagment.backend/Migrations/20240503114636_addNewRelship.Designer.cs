@@ -4,6 +4,7 @@ using CommandManagment.backend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CommandManagment.backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240503114636_addNewRelship")]
+    partial class addNewRelship
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,23 +24,6 @@ namespace CommandManagment.backend.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("CommandManagment.backend.Models.InviteToken", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("InviteTokens");
-                });
 
             modelBuilder.Entity("CommandManagment.backend.Models.Project", b =>
                 {
@@ -67,27 +53,6 @@ namespace CommandManagment.backend.Migrations
                     b.HasIndex("TeamId");
 
                     b.ToTable("Projects");
-                });
-
-            modelBuilder.Entity("CommandManagment.backend.Models.ResetPasswordToken", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ResetPasswordTokens");
                 });
 
             modelBuilder.Entity("CommandManagment.backend.Models.ScrumBoard", b =>
@@ -153,9 +118,6 @@ namespace CommandManagment.backend.Migrations
                     b.Property<DateTimeOffset>("DateTimeEnd")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<bool>("IsArchived")
-                        .HasColumnType("bit");
-
                     b.Property<bool>("IsDone")
                         .HasColumnType("bit");
 
@@ -197,6 +159,7 @@ namespace CommandManagment.backend.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("TeamDescription")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TeamName")

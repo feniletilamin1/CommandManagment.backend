@@ -7,7 +7,7 @@ namespace CommandManagment.backend.Models
     {
         public int Id { get; set; }
         public string TeamName { get; set; }
-        public string TeamDescription { get; set; }
+        public string? TeamDescription { get; set; }
         public List<User> Users { get; set; }
 
         [ForeignKey(nameof(User))]

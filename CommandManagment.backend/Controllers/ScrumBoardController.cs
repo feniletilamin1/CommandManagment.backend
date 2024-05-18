@@ -25,20 +25,21 @@ namespace CommandManagment.backend.Controllers
         }
 
         [Authorize]
-        [HttpGet("GetScrumBoard/{projectId}")]
-        public async Task<IActionResult> GetScrumBoard(int projectId)
+        [HttpGet("GetScrumBoard/{scrumBoardId}")]
+        public async Task<IActionResult> GetScrumBoard(int scrumBoardId)
         {
             string userEmail = _jwtService.GetUserEmailFromJwt(Request.Headers["Authorization"]);
             User user = await _contextHelper.GetUserByEmail(userEmail);
-            Project project = await _context.Projects.Include(p => p.Team).FirstOrDefaultAsync(p => p.Id == projectId);
 
-            if (user == null || project == null)
-                return BadRequest(new ResponseModel("Wrong user email or projectId"));
+            if (user == null)
+                return BadRequest(new ResponseModel("Wrong user email"));
 
-            ScrumBoard scrumBoard = await _context.ScrumBoards.Include(p => p.ScrumBoardTasks).Include(p => p.ScrumBoardColumns).FirstOrDefaultAsync(p => p.ProjectId == projectId && p.UserId == user.Id);
-            
+            Board scrumBoard = await _context.ScrumBoards.Include(p => p.ScrumBoardTasks).Include(p => p.ScrumBoardColumns).FirstOrDefaultAsync(p => p.Id == scrumBoardId);
+
+            Project project = await _context.Projects.Include(p => p.Team).FirstOrDefaultAsync(p => p.Id == scrumBoard.ProjectId);
+
             scrumBoard.ScrumBoardColumns = scrumBoard.ScrumBoardColumns.OrderBy(o => o.Order).ToList();
-            scrumBoard.ScrumBoardTasks = scrumBoard.ScrumBoardTasks.OrderBy(o => o.Order).ToList();
+            scrumBoard.ScrumBoardTasks = scrumBoard.ScrumBoardTasks.OrderBy(o => o.Order).Where(t => t.IsArchived == false).ToList();
             scrumBoard.TeamUsers = await _context.Users.Where(u => u.Teams.Contains(project.Team)).ToListAsync();
 
             return Ok(scrumBoard);
@@ -47,7 +48,7 @@ namespace CommandManagment.backend.Controllers
 
         [Authorize]
         [HttpPut("ColumnsMove")]
-        public async Task<IActionResult> ColumnsMove([FromBody] List<ScrumBoardColumn> scrumBoardColumns)
+        public async Task<IActionResult> ColumnsMove([FromBody] List<BoardColumn> scrumBoardColumns)
         {
             string userEmail = _jwtService.GetUserEmailFromJwt(Request.Headers["Authorization"]);
             User user = await _contextHelper.GetUserByEmail(userEmail);
@@ -55,7 +56,7 @@ namespace CommandManagment.backend.Controllers
             if (user == null)
                 return BadRequest(new ResponseModel("Wrong user email"));
 
-            foreach (ScrumBoardColumn newColumn in scrumBoardColumns)
+            foreach (BoardColumn newColumn in scrumBoardColumns)
             {
                 await _context.ScrumBoardColumns.Where(t => t.Id == newColumn.Id).ExecuteUpdateAsync(s => s.SetProperty(u => u.Order, newColumn.Order));
             }
@@ -67,7 +68,7 @@ namespace CommandManagment.backend.Controllers
 
         [Authorize]
         [HttpPost("ColumnAdd")]
-        public async Task<IActionResult> ColumnAdd([FromBody] ScrumBoardColumn scrumBoardColumn)
+        public async Task<IActionResult> ColumnAdd([FromBody] BoardColumn scrumBoardColumn)
         {
             string userEmail = _jwtService.GetUserEmailFromJwt(Request.Headers["Authorization"]);
             User user = await _contextHelper.GetUserByEmail(userEmail);
@@ -75,7 +76,7 @@ namespace CommandManagment.backend.Controllers
             if (user == null)
                 return BadRequest(new ResponseModel("Wrong user email"));
 
-            ScrumBoard scrumBoard = await _context.ScrumBoards.Include(p => p.ScrumBoardColumns).FirstOrDefaultAsync(p => p.Id == scrumBoardColumn.ScrumBoardId);
+            Board scrumBoard = await _context.ScrumBoards.Include(p => p.ScrumBoardColumns).FirstOrDefaultAsync(p => p.Id == scrumBoardColumn.ScrumBoardId);
             scrumBoard.ScrumBoardColumns.Add(scrumBoardColumn);
 
             scrumBoardColumn.Id = null;
@@ -105,7 +106,7 @@ namespace CommandManagment.backend.Controllers
 
         [Authorize]
         [HttpPut("ColumnUpdate")]
-        public async Task<IActionResult> ColumnUpdate([FromBody] ScrumBoardColumn scrumBoardColumn)
+        public async Task<IActionResult> ColumnUpdate([FromBody] BoardColumn scrumBoardColumn)
         {
             string userEmail = _jwtService.GetUserEmailFromJwt(Request.Headers["Authorization"]);
             User user = await _contextHelper.GetUserByEmail(userEmail);
@@ -122,7 +123,7 @@ namespace CommandManagment.backend.Controllers
 
         [Authorize]
         [HttpPost("TaskAdd")]
-        public async Task<IActionResult> TaskAdd([FromBody] ScrumBoardTask scrumBoardTask)
+        public async Task<IActionResult> TaskAdd([FromBody] BoardTask scrumBoardTask)
         {
             string userEmail = _jwtService.GetUserEmailFromJwt(Request.Headers["Authorization"]);
             User user = await _contextHelper.GetUserByEmail(userEmail);
@@ -131,7 +132,7 @@ namespace CommandManagment.backend.Controllers
                 return BadRequest(new ResponseModel("Wrong user email"));
             scrumBoardTask.ResponsibleUser = await _contextHelper.GetUserById(scrumBoardTask.ResponsibleUserId);
 
-            ScrumBoard scrumBoard = await _context.ScrumBoards.Include(p => p.ScrumBoardTasks).FirstOrDefaultAsync(p => p.Id == scrumBoardTask.ScrumBoardId);
+            Board scrumBoard = await _context.ScrumBoards.Include(p => p.ScrumBoardTasks).FirstOrDefaultAsync(p => p.Id == scrumBoardTask.ScrumBoardId);
 
             scrumBoardTask.Id = null;
 
@@ -161,7 +162,7 @@ namespace CommandManagment.backend.Controllers
 
         [Authorize]
         [HttpPut("TasksMove")]
-        public async Task<IActionResult> TasksMove([FromBody] List<ScrumBoardTask> scrumBoardTasks)
+        public async Task<IActionResult> TasksMove([FromBody] List<BoardTask> scrumBoardTasks)
         {
             string userEmail = _jwtService.GetUserEmailFromJwt(Request.Headers["Authorization"]);
             User user = await _contextHelper.GetUserByEmail(userEmail);
@@ -169,7 +170,7 @@ namespace CommandManagment.backend.Controllers
             if (user == null)
                 return BadRequest(new ResponseModel("Wrong user email"));
 
-            foreach (ScrumBoardTask newColumn in scrumBoardTasks)
+            foreach (BoardTask newColumn in scrumBoardTasks)
             {
                 await _context.ScrumBoardTasks.Where(t => t.Id == newColumn.Id).ExecuteUpdateAsync(s => s.SetProperty(u => u.Order, newColumn.Order).SetProperty(u => u.ScrumBoardColumnId, newColumn.ScrumBoardColumnId));
             }
@@ -181,7 +182,7 @@ namespace CommandManagment.backend.Controllers
 
         [Authorize]
         [HttpPut("TaskUpdate")]
-        public async Task<IActionResult> TaskUpdate([FromBody] ScrumBoardTask scrumBoardTask)
+        public async Task<IActionResult> TaskUpdate([FromBody] BoardTask scrumBoardTask)
         {
             scrumBoardTask.ResponsibleUser = null;
 

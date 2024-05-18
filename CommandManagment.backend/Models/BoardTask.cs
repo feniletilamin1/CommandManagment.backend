@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace CommandManagment.backend.Models
 {
-    public class ScrumBoardTask
+    public class BoardTask
     {
         public Guid? Id { get; set; }
         public int Order { get; set; }
@@ -11,15 +11,16 @@ namespace CommandManagment.backend.Models
         public bool IsDone { get; set; }
         public int? ScrumBoardId { get; set; }
         [JsonIgnore]
-        public ScrumBoard? ScrumBoard { get; set; }
+        public Board? ScrumBoard { get; set; }
         public Guid? ScrumBoardColumnId { get; set; }
         [JsonIgnore]
-        public ScrumBoardColumn? ScrumBoardColumn { get; set; }
+        public BoardColumn? ScrumBoardColumn { get; set; }
         [ForeignKey(nameof(User))]
         public int ResponsibleUserId { get; set; }
         public User? ResponsibleUser { get; set; }
         public DateTimeOffset DateTimeCreated { get; set; }
         public int PriorityIndex { get; set; }
         public DateTimeOffset DateTimeEnd { get; set; }
+        public bool IsArchived { get; set; }
     }
 }

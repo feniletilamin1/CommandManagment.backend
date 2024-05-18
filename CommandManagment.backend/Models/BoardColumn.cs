@@ -2,20 +2,20 @@
 
 namespace CommandManagment.backend.Models
 {
-    public class ScrumBoardColumn
+    public class BoardColumn
     {
         public Guid? Id { get; set; }
         public string Name { get; set; }
         public int Order { get; set; }
         public int ScrumBoardId { get; set; }
         [JsonIgnore]
-        public ScrumBoard? ScrumBoard { get; set; }
+        public Board? ScrumBoard { get; set; }
         [JsonIgnore]
-        public List<ScrumBoardTask>? ScrumBoardTasks { get; set; }
+        public List<BoardTask>? ScrumBoardTasks { get; set; }
 
-        public ScrumBoardColumn()
+        public BoardColumn()
         {
-            ScrumBoardTasks = new List<ScrumBoardTask>();
+            ScrumBoardTasks = new List<BoardTask>();
         }
     }
 }

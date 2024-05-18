@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace CommandManagment.backend.Models
 {
-    public class ScrumBoard
+    public class Board
     {
         public int Id { get; set; }
         [ForeignKey(nameof(User))]
@@ -15,14 +15,14 @@ namespace CommandManagment.backend.Models
         public int ProjectId { get; set; }
         [JsonIgnore]
         public Project? Project { get; set; }
-        public List<ScrumBoardColumn> ScrumBoardColumns { get; set; }
-        public List<ScrumBoardTask> ScrumBoardTasks { get; set; }
+        public List<BoardColumn> ScrumBoardColumns { get; set; }
+        public List<BoardTask> ScrumBoardTasks { get; set; }
         [NotMapped]
         public List<User> TeamUsers { get; set; }
-        public ScrumBoard()
+        public Board()
         {
-            ScrumBoardTasks = new List<ScrumBoardTask>();
-            ScrumBoardColumns = new List<ScrumBoardColumn>();
+            ScrumBoardTasks = new List<BoardTask>();
+            ScrumBoardColumns = new List<BoardColumn>();
             TeamUsers = new List<User>();
         }
     }

@@ -42,7 +42,7 @@ namespace CommandManagment.backend.Controllers
 
             foreach (Team team in teams)
             {
-                team.Users = team.Users.Skip(Math.Max(0, team.Users.Count - 3)).ToList();
+                team.Users = team.Users.Take(3).ToList(); ;
                 foreach (User user in team.Users)
                 {
                     if(!user.Photo.Contains("https://"))
@@ -188,6 +188,11 @@ namespace CommandManagment.backend.Controllers
 
             string token = _jwtService.GenerateInviteToken(teamId);
 
+            _context.InviteTokens.Add(new InviteToken
+            {
+                Token = token
+            });
+
             await _context.SaveChangesAsync();
 
             return Ok(token);
@@ -197,11 +202,14 @@ namespace CommandManagment.backend.Controllers
         [HttpGet("InviteUserToTeam/{token}")]
         public async Task<IActionResult> InviteUserToTeam(string token)
         {
+            InviteToken inviteToken = await _context.InviteTokens.Where(t => t.Token == token).FirstOrDefaultAsync();
+
+            if(inviteToken == null) return BadRequest("Token doesn`t exists");
+
             JwtSecurityTokenHandler tokenHandler = new();
             JwtSecurityToken validateToken = _jwtService.ValidateToken(token);
 
-            if (validateToken == null) return BadRequest("Wrong token or expires");
-
+            if (validateToken == null ) return BadRequest("Wrong token or expires");
 
             string userEmail = _jwtService.GetUserEmailFromJwt(Request.Headers["Authorization"]);
             User user = await _contextHelper.GetUserByEmail(userEmail);

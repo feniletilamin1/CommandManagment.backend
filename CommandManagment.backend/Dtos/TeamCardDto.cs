@@ -8,6 +8,4 @@ namespace CommandManagment.backend.Dtos
         public string TeamName { get; set; }
         public List<User> users { get; set; }
     }
-
-
 }

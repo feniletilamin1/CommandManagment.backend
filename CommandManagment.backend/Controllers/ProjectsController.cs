@@ -6,8 +6,7 @@ using CommandManagment.backend.ResponseModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
+
 
 namespace CommandManagment.backend.Controllers 
 { 
@@ -38,8 +37,10 @@ namespace CommandManagment.backend.Controllers
             if (user == null)
                 return BadRequest(new ResponseModel("Wrong user email"));
 
+
             List<Project> projects = await _context.Projects.Include(o => o.Team)
                 .Include(o => o.CreateUser)
+                .Include(p => p.Board)
                 .Where(p => p.Team.Users.Contains(user))
                 .ToListAsync();
 
@@ -72,27 +73,27 @@ namespace CommandManagment.backend.Controllers
             await _context.Projects.AddAsync(project);
             await _context.SaveChangesAsync();
 
-            List<ScrumBoardColumn> scrumBoardInitialColumns = new()
+            List<BoardColumn> scrumBoardInitialColumns = new()
             {
-                new ScrumBoardColumn
+                new BoardColumn
                 {
                     Name = "Сделать",
                     Order = 0,
 
                 },
-                new ScrumBoardColumn
+                new BoardColumn
                 {
                     Name = "В работе",
                     Order = 1,
                 },
-                new ScrumBoardColumn
+                new BoardColumn
                 {
                     Name = "Сделано",
                     Order = 2,
                 },
             };
 
-            ScrumBoard scrumBoard = new()
+            Board scrumBoard = new()
             {
                 Project = project,
                 User = user,
@@ -126,6 +127,38 @@ namespace CommandManagment.backend.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(project);
+        }
+
+        [Authorize]
+        [HttpGet("GetUserTasks")]
+        public async Task<IActionResult> GetUserTasks()
+        {
+            string userEmail = _jwtService.GetUserEmailFromJwt(Request.Headers["Authorization"]);
+
+            User user = await _contextHelper.GetUserByEmail(userEmail);
+
+            if (user == null)
+                return BadRequest(new ResponseModel("Wrong user"));
+
+            List<BoardTask> scrumBoardTasks = await _context.ScrumBoardTasks.Where(t => t.ResponsibleUser == user).ToListAsync();
+
+            return Ok(scrumBoardTasks);
+        }
+
+        [Authorize]
+        [HttpGet("GetUserArchivedTasks")]
+        public async Task<IActionResult> GetUserArchivedTasks()
+        {
+            string userEmail = _jwtService.GetUserEmailFromJwt(Request.Headers["Authorization"]);
+
+            User user = await _contextHelper.GetUserByEmail(userEmail);
+
+            if (user == null)
+                return BadRequest(new ResponseModel("Wrong user"));
+
+            List<BoardTask> scrumBoardTasks = await _context.ScrumBoardTasks.Where(t => t.ResponsibleUser == user && t.IsArchived == true).ToListAsync();
+
+            return Ok(scrumBoardTasks);
         }
     }
 }

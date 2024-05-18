@@ -5,6 +5,8 @@ using CommandManagment.backend.Models;
 using CommandManagment.backend.ResponseModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Mail;
 
@@ -148,9 +150,73 @@ namespace CommandManagment.backend.Controllers
 
             if (!_context.Users.Any(u => u.Email == userEmail)) return BadRequest(new ResponseModel("Пользователя с указанным email не существует"));
 
+            string resetToken = _jwtService.GenerateResetPasswordToken(userEmail);
+
+            string resetLink = AuthOptions.AUDIENCE + "/passwordResetConf/" + resetToken;
+
+            string smtpServer = "smtp.yandex.ru";
+            int smtpPort = 587;
+
+            // Логин и пароль для авторизации на SMTP-сервере
+            string login = "tsibutsinini.serezha@yandex.ru";
+            string password = "fpmjvoushkiicqqg";
+
+            // отправитель - устанавливаем адрес и отображаемое в письме имя
+            MailAddress from = new MailAddress("tsibutsinini.serezha@yandex.ru", "Команда WorkFlow");
+
+            MailAddress to = new("tsibutsinini.serezha@yandex.ru");
+
+            MailMessage message = new(from, to)
+            {
+                // тема письма
+                Subject = "Сброс пароля",
+                // текст письма
+                Body = @$"<h2>Сброс пароля</h2>
+                <p>Здравствуйте, {userEmail}!</p>
+                <p>Мы получили запрос на сброс вашего пароля. Ваша ссылка для сброса пароля:</p>
+                <p><strong>{resetLink}</strong></p>
+                <p>С наилучшими пожеланиями,</p>
+                <p>Команда поддержки WorkFlow</p>", 
+                IsBodyHtml = true
+            };
+
+            // адрес smtp-сервера и порт, с которого будем отправлять письмо
+            SmtpClient smtp = new SmtpClient(smtpServer, smtpPort);
+            // логин и пароль
+            smtp.Credentials = new NetworkCredential(login, password);
+            smtp.EnableSsl = true;
+            smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+            // отправляем асинхронно
+            await smtp.SendMailAsync(message);
+            message.Dispose();
+
+            return Ok();
+        }
+
+        [HttpGet("PasswordChangeConfirm/{token}")]
+        public async Task<IActionResult> PasswordChangeConfirm(string token)
+        {
             string newPassword = _jwtService.GenerateRandomPassword(10);
+
+            JwtSecurityTokenHandler tokenHandler = new();
+            JwtSecurityToken validateToken = _jwtService.ValidateToken(token);
+
+            if (validateToken == null) return BadRequest(new ResponseModel("Wrong token or expires"));
+
+            ResetPasswordToken resetPasswordToken = await _context.ResetPasswordTokens.FirstOrDefaultAsync(t => t.Token == token);
+
+            if (resetPasswordToken == null) return BadRequest(new ResponseModel("Wrong token or expires"));
+
+            string userEmail = validateToken.Claims.First(claim => claim.Type == "userEmail").Value;
+
+            User user = await _contextHelper.GetUserByEmail(userEmail);
+
+            if (user == null)
+                return BadRequest(new ResponseModel("Wrong user email"));
+
             user.Password = BCrypt.Net.BCrypt.HashPassword(newPassword);
             _context.Users.Update(user);
+            _context.Remove(resetPasswordToken);
             await _context.SaveChangesAsync();
 
             string smtpServer = "smtp.yandex.ru";
@@ -176,7 +242,7 @@ namespace CommandManagment.backend.Controllers
                 <p><strong>{newPassword}</strong></p>
                 <p>Пожалуйста, войдите в свой личный кабинет с использованием нового пароля и сразу же измените его на более безопасный.</p>
                 <p>С наилучшими пожеланиями,</p>
-                <p>Команда поддержки WorkFlow</p>", 
+                <p>Команда поддержки WorkFlow</p>",
                 IsBodyHtml = true
             };
 
@@ -190,8 +256,9 @@ namespace CommandManagment.backend.Controllers
             await smtp.SendMailAsync(message);
             message.Dispose();
 
+
             return Ok();
         }
-    
+
     }
 }
