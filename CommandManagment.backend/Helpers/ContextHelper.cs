@@ -1,6 +1,5 @@
 ﻿using CommandManagment.backend.Data;
 using CommandManagment.backend.Models;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace CommandManagment.backend.Helpers

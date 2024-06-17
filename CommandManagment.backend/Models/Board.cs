@@ -13,7 +13,6 @@ namespace CommandManagment.backend.Models
         public User? User { get; set; }
         [JsonIgnore]
         public int ProjectId { get; set; }
-        [JsonIgnore]
         public Project? Project { get; set; }
         public List<BoardColumn> ScrumBoardColumns { get; set; }
         public List<BoardTask> ScrumBoardTasks { get; set; }

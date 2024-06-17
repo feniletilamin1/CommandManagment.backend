@@ -20,12 +20,14 @@ namespace CommandManagment.backend.Models
         public List<Board>? ScrumBoards { get; set; }
         [JsonIgnore]
         public List<BoardTask>? UserTasks { get; set; }
+        public List<BoardTask>? CreatedTasks { get; set; }
 
         public User()
         {
             Teams = new List<Team>();
             ScrumBoards = new List<Board>();
             UserTasks = new List<BoardTask>();
+            CreatedTasks = new List<BoardTask>();
         }
     }
 }

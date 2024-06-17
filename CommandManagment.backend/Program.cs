@@ -1,9 +1,11 @@
 using CommandManagment.backend;
+using CommandManagment.backend.Controllers;
 using CommandManagment.backend.Data;
 using CommandManagment.backend.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,7 +36,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<ContextHelper>();
+builder.Services.AddScoped<BoardController>();
+builder.Services.AddScoped<AuthenficationController>();
+builder.Services.AddScoped<ProjectsController>();
+builder.Services.AddScoped<TeamsController>();
 builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(x =>
+                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

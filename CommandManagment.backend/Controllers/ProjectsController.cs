@@ -140,7 +140,7 @@ namespace CommandManagment.backend.Controllers
             if (user == null)
                 return BadRequest(new ResponseModel("Wrong user"));
 
-            List<BoardTask> scrumBoardTasks = await _context.ScrumBoardTasks.Where(t => t.ResponsibleUser == user).ToListAsync();
+            List<BoardTask> scrumBoardTasks = await _context.ScrumBoardTasks.Where(t => t.ResponsibleUser == user && !t.IsArchived).ToListAsync();
 
             return Ok(scrumBoardTasks);
         }

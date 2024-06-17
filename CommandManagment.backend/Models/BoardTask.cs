@@ -22,5 +22,7 @@ namespace CommandManagment.backend.Models
         public int PriorityIndex { get; set; }
         public DateTimeOffset DateTimeEnd { get; set; }
         public bool IsArchived { get; set; }
+        public int CreateUserTaskId { get; set; }
+        public User? CreateUserTask { get; set; }
     }
 }

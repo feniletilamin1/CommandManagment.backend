@@ -32,6 +32,11 @@ namespace CommandManagment.backend.Data
               .WithMany(c => c.UserTasks)
               .OnDelete(DeleteBehavior.NoAction);
 
+            modelBuilder.Entity<BoardTask>()
+            .HasOne(u => u.CreateUserTask)
+            .WithMany(c => c.CreatedTasks)
+            .OnDelete(DeleteBehavior.NoAction);
+
             modelBuilder.Entity<Project>()
                .HasOne(e => e.Board)
                     .WithOne(e => e.Project)

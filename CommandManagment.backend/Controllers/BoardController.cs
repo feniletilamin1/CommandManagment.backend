@@ -10,14 +10,14 @@ namespace CommandManagment.backend.Controllers
 {
 
     [Route("api/[controller]")]
-    public class ScrumBoardController : Controller
+    public class BoardController : Controller
     {
 
         readonly AppDbContext _context;
         readonly ContextHelper _contextHelper;
         readonly JwtService _jwtService;
 
-        public ScrumBoardController(AppDbContext context, ContextHelper contextHelper, JwtService jwtService)
+        public BoardController(AppDbContext context, ContextHelper contextHelper, JwtService jwtService)
         {
             _context = context;
             _contextHelper = contextHelper;
@@ -34,7 +34,7 @@ namespace CommandManagment.backend.Controllers
             if (user == null)
                 return BadRequest(new ResponseModel("Wrong user email"));
 
-            Board scrumBoard = await _context.ScrumBoards.Include(p => p.ScrumBoardTasks).Include(p => p.ScrumBoardColumns).FirstOrDefaultAsync(p => p.Id == scrumBoardId);
+            Board scrumBoard = await _context.ScrumBoards.Include(p => p.ScrumBoardTasks).Include(p => p.ScrumBoardColumns).Include(p => p.Project).FirstOrDefaultAsync(p => p.Id == scrumBoardId);
 
             Project project = await _context.Projects.Include(p => p.Team).FirstOrDefaultAsync(p => p.Id == scrumBoard.ProjectId);
 
@@ -185,6 +185,7 @@ namespace CommandManagment.backend.Controllers
         public async Task<IActionResult> TaskUpdate([FromBody] BoardTask scrumBoardTask)
         {
             scrumBoardTask.ResponsibleUser = null;
+            scrumBoardTask.CreateUserTask = null;
 
             string userEmail = _jwtService.GetUserEmailFromJwt(Request.Headers["Authorization"]);
             User user = await _contextHelper.GetUserByEmail(userEmail);
